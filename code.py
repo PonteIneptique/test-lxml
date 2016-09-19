@@ -37,7 +37,7 @@ def compare(xml1, xml2, xml3=None, xpath="./node()", increment=1):
     # We apply the same
     nodes1 = list(walking(xml1, xpath))
     nodes2 = list(walking(xml2, xpath))
-    if xml3:
+    if xml3 is not None:
         nodes3 = list(walking(xml3, xpath))
         assert len(nodes2) == len(nodes3) == len(nodes1)
 
@@ -64,5 +64,5 @@ except AssertionError as E:
         compare(Tree2, Tree3)
     except AssertionError as E2:
         print(E)
-        raise E2
+        print(E2)
 
