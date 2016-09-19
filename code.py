@@ -61,7 +61,7 @@ try:
 except AssertionError as E:
     try:
         # If we have a bug with all three, let check with  the two objectified one only
-        compare(Tree2, Tree3)
+        compare(Tree3, Tree1)
     except AssertionError as E2:
         print(E)
         print(E2)
