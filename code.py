@@ -33,18 +33,36 @@ def walking(xml, xpath):
             yield node
 
 
-def compare(xml1, xml2, xml3, xpath="./node()", increment=1):
+def compare(xml1, xml2, xml3=None, xpath="./node()", increment=1):
     # We apply the same
     nodes1 = list(walking(xml1, xpath))
     nodes2 = list(walking(xml2, xpath))
-    nodes3 = list(walking(xml3, xpath))
+    if xml3:
+        nodes3 = list(walking(xml3, xpath))
+        assert len(nodes2) == len(nodes3) == len(nodes1)
 
-    assert len(nodes2) == len(nodes3) == len(nodes1)
-    for i in range(0, len(nodes1)):
-        el1, el2, el3 = nodes1[i], nodes2[i], nodes3[i]
-        if isinstance(el1, etree._Element):
-            assert el1.tag == el2.tag == el3.tag, \
-                "Failed at depth {} for {}".format(increment, str((el1, el2, el3)))
-            compare(el1, el2, el3, xpath, increment=increment+1)
+        for i in range(0, len(nodes1)):
+            el1, el2, el3 = nodes1[i], nodes2[i], nodes3[i]
+            if isinstance(el1, etree._Element):
+                assert el1.tag == el2.tag == el3.tag, \
+                    "Failed at depth {} for {}".format(increment, str((el1, el2, el3)))
+                compare(el1, el2, el3, xpath, increment=increment + 1)
+    else:
+        assert len(nodes2) == len(nodes1)
+        for i in range(0, len(nodes1)):
+            el1, el2 = nodes1[i], nodes2[i]
+            if isinstance(el1, etree._Element):
+                assert el1.tag == el2.tag, \
+                    "Failed at depth {} for {}".format(increment, str((el1, el2)))
+                compare(el1, el2, None, xpath, increment=increment + 1)
 
-compare(Tree1, Tree2, Tree3)
+try:
+    compare(Tree1, Tree2, Tree3)
+except AssertionError as E:
+    try:
+        # If we have a bug with all three, let check with  the two objectified one only
+        compare(Tree2, Tree3)
+    except AssertionError as E2:
+        print(E)
+        raise E2
+
